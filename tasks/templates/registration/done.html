@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Success{% endblock %}
+{% block content %}
+<div class="done-container">
+    <h2>Success</h2>
+    <p>Your action was completed successfully.</p>
+    <a href="{% url 'task_list' %}" class="btn btn-primary">Back to Tasks</a>
+</div>
+{% endblock %}

@@ -3,6 +3,11 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from .models import Task
 from .forms import TaskForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm, AuthenticationForm
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash, authenticate
+from django.contrib.auth import logout as auth_logout
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
@@ -23,6 +28,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 from django.views.generic.list import ListView
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth import login
 
 class TaskListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
@@ -114,6 +120,7 @@ def export_tasks_text(request):
 
 import openpyxl
 from openpyxl.utils import get_column_letter
+from django.shortcuts import render, redirect
 
 def export_tasks_excel(request):
     tasks = Task.objects.filter(user=request.user)
@@ -153,3 +160,75 @@ def export_tasks_excel(request):
     response['Content-Disposition'] = 'attachment; filename=tasks.xlsx'
     workbook.save(response)
     return response
+
+
+# Profile Page View
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html', {
+        'user': request.user
+    })
+
+# Edit Profile Page View
+@login_required
+def profile_edit_view(request):
+    if request.method == 'POST':
+        form = UserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile')
+    else:
+        form = UserChangeForm(instance=request.user)
+    
+    return render(request, 'profile_edit.html', {
+        'form': form
+    })
+
+# Logout View
+def logout_view(request):
+    auth_logout(request)
+    return render(request, 'logout.html')
+
+# Change Password View
+@login_required
+def change_password_view(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important to keep user logged in after password change
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    return render(request, 'password_change.html', {
+        'form': form
+    })
+
+def registerView(request):
+    return render(request, 'register.html')
+
+def loginView(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Welcome, {username}!')
+                return redirect('task_list')  # Redirect to a success page.
+            else:
+                messages.error(request, 'Invalid username or password.')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    else:
+        form = AuthenticationForm()
+    
+    return render(request, 'registration/login.html', {'form': form})
+

@@ -1,0 +1,32 @@
+body {
+    background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+    color: #333;
+}
+
+.navbar {
+    background: linear-gradient(45deg, #3a6186, #89253e);
+}
+
+.btn-primary {
+    background-color: #3a6186;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #89253e;
+}
+
+.description-col {
+    width: 50%;
+    word-wrap: break-word;
+}
+
+h1 {
+    animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}

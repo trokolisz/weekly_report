@@ -1,34 +1,36 @@
 {% extends 'base.html' %}
 {% block title %}My Tasks{% endblock %}
 {% block content %}
-<h1>My Tasks for Week {{ week }}</h1>
-<a href="{% url 'task_create' %}" class="btn btn-primary">Add New Task</a>
-<table class="table mt-3">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Time Spent (mins)</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for task in tasks %}
-        <tr>
-            <td>{{ task.created_at.date }}</td>
-            <td>{{ task.description }}</td>
-            <td>{{ task.time_spent }}</td>
-            <td>
-                <a href="{% url 'task_edit' task.pk %}" class="btn btn-sm btn-warning">Edit</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4">No tasks found for this week.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<h1 class="text-center">My Tasks for Week {{ week }}</h1>
+<a href="{% url 'task_create' %}" class="btn btn-primary mb-3">Add New Task</a>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Time Spent (mins)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.created_at.date }}</td>
+                <td style="white-space: pre-wrap; word-wrap: break-word;">{{ task.description }}</td>
+                <td>{{ task.time_spent }}</td>
+                <td>
+                    <a href="{% url 'task_edit' task.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No tasks found for this week.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 <a href="{% url 'export_tasks_text' %}" class="btn btn-secondary">Export as Text</a>
 <a href="{% url 'export_tasks_excel' %}" class="btn btn-secondary">Export as Excel</a>
 {% endblock %}
